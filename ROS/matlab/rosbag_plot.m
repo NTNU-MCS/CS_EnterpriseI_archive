@@ -1,6 +1,7 @@
 bag = rosbag('2021-01-19-18-16-54.bag');
 bagselect = select(bag, 'Topic', '/qualisys/CSEI/odom'); 
 bag_joy = select(bag,'Topic','/joy');
+bag_u = select(bag,'Topic','/CSEI/u');
 
 ts = timeseries(bagselect, 'Twist.Twist.Linear.X','Twist.Twist.Linear.Y', 'Twist.Twist.Angular.Z', 'Pose.Pose.Position.X', 'Pose.Pose.Position.Y', 'Pose.Pose.Position.Z', 'Pose.Pose.Orientation.W', 'Pose.Pose.Orientation.X','Pose.Pose.Orientation.Y','Pose.Pose.Orientation.Z');
 
@@ -10,8 +11,19 @@ Buttons = cellfun(@(m) double(m.Buttons),msgStructs,'UniformOutput',false);
 m1 = size(Axes,1);
 m2 = size(Buttons,1);
 
+inputStructs = readMessages(bag_u,'DataFormat','struct');
+inputData = cellfun(@(m) double(m.Data),inputStructs,'UniformOutput',false);
+m3 = size(inputData,1);
+inputData = cell2mat(inputData);
+inputData = reshape(inputData,[5,m3]);
+
+
+ts_u = bag_u.timeseries;
+time_u = ts_u.time - ts_u.time(1);
+
 ts_joy = bag_joy.timeseries;
 time_joy = ts_joy.time-ts_joy.time(1);
+
 
 time = ts.Time(:);
 time = time-time(1);
