@@ -1,3 +1,6 @@
+% you need to run  rosbag record CSEI/observer/odom /qualisys/CSEI/odom /joy /CSEI/u /CSEI/observer/bias /CSEI/observer/errorsignal
+% on the RPi for this script to work without modification
+
 bag = rosbag('2021-01-21-04-20-06.bag');
 bagselect = select(bag, 'Topic', '/qualisys/CSEI/odom'); 
 bag_obs = select(bag, 'Topic', 'CSEI/observer/odom'); 
