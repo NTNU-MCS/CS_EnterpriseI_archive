@@ -1,7 +1,8 @@
 % you need to run  rosbag record CSEI/observer/odom /qualisys/CSEI/odom /joy /CSEI/u /CSEI/observer/bias /CSEI/observer/errorsignal
 % on the RPi for this script to work without modification
+clear bag bagselect bag_obs bag_joy bag_u bag_bias bag_errorsig
 
-bag = rosbag('2021-01-21-04-20-06.bag');
+bag = rosbag('2021-01-22-17-08-25.bag');
 bagselect = select(bag, 'Topic', '/qualisys/CSEI/odom'); 
 bag_obs = select(bag, 'Topic', 'CSEI/observer/odom'); 
 bag_joy = select(bag,'Topic','/joy');
@@ -40,7 +41,7 @@ ts_u = bag_u.timeseries;
 time_u = ts_u.time - ts.Time(1);
 
 ts_joy = bag_joy.timeseries;
-time_joy = ts_joy.time - ts.Time(1);
+% time_joy = ts_joy.time - ts.Time(1);
 
 time = ts.Time(:);
 time = time-time(1);
@@ -59,6 +60,8 @@ quat_obs = ts_obs.Data(:,7:10);
 
 eul_obs = quat2eul(quat_obs,'XYZ');
 psi_obs = 180/pi.*eul_obs(:,3);
+
+
 
 time_bias = ts_bias.Time(:);
 time_bias = time_bias - ts.Time(1);

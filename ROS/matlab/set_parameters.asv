@@ -18,17 +18,17 @@ ptree = rosparam;
 % pval.gains.L33 = 1;
 
 
-pval.gains.L11 = 7.9058;
-pval.gains.L12 = 7.9058;
-pval.gains.L13 = 7.9058;
+pval.gains.L11 = 10;
+pval.gains.L12 = 10;
+pval.gains.L13 = 10;
 
 pval.gains.L21 = 50;
 pval.gains.L22 = 50;
-pval.gains.L23 = 10;
+pval.gains.L23 = 50;
 
-pval.gains.L31 = .1;
-pval.gains.L32 = .1;
-pval.gains.L33 = 0.01;
+pval.gains.L31 = 1;
+pval.gains.L32 = 1;
+pval.gains.L33 = 1;
 
 pval.ref.x = 2;
 pval.ref.y = 0.0;
