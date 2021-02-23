@@ -5,6 +5,7 @@ rosinit('192.168.1.2')
 %%
 pos = rossubscriber('/qualisys/CSEI/odom');
 eta_hat = rossubscriber('/CSEI/observer/eta');
+nu_hat = rossubscriber('/CSEI/observer/nu');
 
 pause(1)
 
@@ -29,6 +30,7 @@ p0 = [0.5,  0.3, 0.3, -0.5, -0.5;
         0, -0.1, 0.1, -0.1,  0.1];
 while run
   eta_hat_data = receive(eta_hat,1);
+  nu_hat_data = receive(nu_hat,1);
   
   odomdata = receive(pos,1);
   xi = odomdata.Pose.Pose.Position.X;
@@ -44,8 +46,7 @@ while run
   R   = [cos(eul(3)), -sin(eul(3)); sin(eul(3)), cos(eul(3))];
   p   = [xi;yi] + R*p0;
   psi = [psi, 180/pi*eul(3)];
-  yaw_angle = 180/pi*eta_hat_data.Z;
-  psi_d = [psi_d, yaw_angle];
+  psi_d = [psi_d, 180/pi*eul_d(3)];
   
   if size(x,2) > 1
     delete(xyp)
