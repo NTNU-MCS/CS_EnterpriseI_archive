@@ -2,8 +2,8 @@
 
 rosinit('192.168.1.2')
 
-[pub_obs,obs_msg] = rospublisher('CSEI/observer/gainss','std_msgs/Float64MultiArray');
-[pub_ctrl,ctrl_msg] = rospublisher('CSEI/controller/gainss','std_msgs/Float64MultiArray');
+[pub_obs,obs_msg] = rospublisher('CSEI/observer/gains','std_msgs/Float64MultiArray');
+[pub_ctrl,ctrl_msg] = rospublisher('CSEI/controller/gains','std_msgs/Float64MultiArray');
 
 
 
