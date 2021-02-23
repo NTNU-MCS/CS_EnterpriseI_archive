@@ -1,17 +1,19 @@
-% you need to run  rosbag record CSEI/observer/odom /qualisys/CSEI/odom /joy /CSEI/u /CSEI/observer/bias /CSEI/observer/errorsignal
+% you need to run  rosbag record CSEI/observer/eta /CSEI/observer/nu /qualisys/CSEI/odom /joy /CSEI/u /CSEI/observer/bias /CSEI/observer/errorsignal
 % on the RPi for this script to work without modification
-clear bag bagselect bag_obs bag_joy bag_u bag_bias bag_errorsig
+clear bag bagselect bag_obs_eta bag_obs_nu bag_joy bag_u bag_bias bag_errorsig
 
-bag = rosbag('2021-01-22-17-08-25.bag');
+bag = rosbag('2021-02-23-17-04-45.bag');
 bagselect = select(bag, 'Topic', '/qualisys/CSEI/odom'); 
-bag_obs = select(bag, 'Topic', 'CSEI/observer/odom'); 
+bag_obs_eta = select(bag, 'Topic', 'CSEI/observer/eta'); 
+bag_obs_nu = select(bag, 'Topic', 'CSEI/observer/nu'); 
 bag_joy = select(bag,'Topic','/joy');
 bag_u = select(bag,'Topic','/CSEI/u');
 bag_bias = select(bag,'Topic','/CSEI/observer/bias');
 bag_errorsig = select(bag, 'Topic', '/CSEI/observer/errorsignal');
 
 ts = timeseries(bagselect, 'Twist.Twist.Linear.X','Twist.Twist.Linear.Y', 'Twist.Twist.Angular.Z', 'Pose.Pose.Position.X', 'Pose.Pose.Position.Y', 'Pose.Pose.Position.Z', 'Pose.Pose.Orientation.W', 'Pose.Pose.Orientation.X','Pose.Pose.Orientation.Y','Pose.Pose.Orientation.Z');
-ts_obs = timeseries(bag_obs, 'Twist.Twist.Linear.X','Twist.Twist.Linear.Y', 'Twist.Twist.Angular.Z', 'Pose.Pose.Position.X', 'Pose.Pose.Position.Y', 'Pose.Pose.Position.Z', 'Pose.Pose.Orientation.W', 'Pose.Pose.Orientation.X','Pose.Pose.Orientation.Y','Pose.Pose.Orientation.Z');
+ts_obs_eta = timeseries(bag_obs_eta, 'X', 'Y', 'Z');
+ts_obs_nu = timeseries(bag_obs_nu, 'X', 'Y', 'Z');
 ts_bias = timeseries(bag_bias, 'X', 'Y', 'Z');
 %%
 msgStructs = readMessages(bag_joy,'DataFormat','struct');
@@ -41,7 +43,7 @@ ts_u = bag_u.timeseries;
 time_u = ts_u.time - ts.Time(1);
 
 ts_joy = bag_joy.timeseries;
-% time_joy = ts_joy.time - ts.Time(1);
+time_joy = ts_joy.time - ts.Time(1);
 
 time = ts.Time(:);
 time = time-time(1);
@@ -52,14 +54,15 @@ quat = ts.Data(:,7:10);
 eul = quat2eul(quat,'XYZ');
 psi = 180/pi.*eul(:,3);
 
-time_obs = ts_obs.Time(:);
-time_obs = time_obs - ts.Time(1);
-vel_obs  = ts_obs.Data(:,1:3);
-pos_obs  = ts_obs.Data(:,4:6);
-quat_obs = ts_obs.Data(:,7:10);
+time_obs_eta = ts_obs_eta.Time(:);
+time_obs_eta = time_obs_eta - ts.Time(1);
+time_obs_nu = ts_obs_nu.Time(:);
+time_obs_nu = time_obs_nu - ts.Time(1);
 
-eul_obs = quat2eul(quat_obs,'XYZ');
-psi_obs = 180/pi.*eul_obs(:,3);
+vel_obs  = ts_obs_nu.Data(:,1:3);
+
+pos_obs  = ts_obs_eta.Data(:,1:2);
+psi_obs = 180/pi.*ts_obs_eta.Data(:,3);
 
 
 
@@ -102,24 +105,24 @@ subplot(3,1,1)
 
 hold on
 plot(time,pos(:,1),'LineWidth', 1.5);
-plot(time_obs,pos_obs(:,1),'--', 'LineWidth',1);
-legend({'$x$', '$x_{d}$'},'Interpreter','latex','Location','best','NumColumns',1, 'FontSize', 11)
+plot(time_obs_eta,pos_obs(:,1),'--', 'LineWidth',1);
+legend({'$x$', '$\hat{x}$'},'Interpreter','latex','Location','best','NumColumns',1, 'FontSize', 11)
 ylabel('Position [m]','interpreter','latex', 'FontSize', 13)
 xlabel('Time [s]','interpreter','latex', 'FontSize', 13);
 
 subplot(3,1,2)
 hold on
 plot(time,pos(:,2),'LineWidth',1.5);
-plot(time_obs,pos_obs(:,2),'--', 'LineWidth',1);
-legend({'$y$', '$y_{d}$'},'Interpreter','latex','Location','best','NumColumns',1, 'FontSize', 11)
+plot(time_obs_eta,pos_obs(:,2),'--', 'LineWidth',1);
+legend({'$y$', '$\hat{y}$'},'Interpreter','latex','Location','best','NumColumns',1, 'FontSize', 11)
 ylabel('Position [m]','interpreter','latex', 'FontSize', 13)
 xlabel('Time [s]','interpreter','latex', 'FontSize', 13);
 
 subplot(3,1,3)
 hold on
 plot(time,psi,'LineWidth', 1.5);
-plot(time_obs,psi_obs,'--', 'LineWidth',1);
-legend({'$\psi$', '$\psi_{d}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
+plot(time_obs_eta,psi_obs,'--', 'LineWidth',1);
+legend({'$\psi$', '$\hat{\psi}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
 xlabel('Time [s]','interpreter','latex','fontsize',13);
 ylabel('Angle [deg]','interpreter','latex','fontsize',13)
 
@@ -129,8 +132,8 @@ subplot(3,1,1)
 hold on
 
 plot(time,vel(:,1),'LineWidth', 1.5);
-plot(time_obs,vel_obs(:,1),'LineWidth', 1.5);
-legend({'$u$', '$u_{d}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
+plot(time_obs_nu,vel_obs(:,1),'LineWidth', 1.5);
+legend({'$u$', '$\hat{u}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
 xlabel('Time [s]','interpreter','latex','fontsize',13);
 ylabel('Angular velocity','interpreter','latex','fontsize',13)
 
@@ -138,23 +141,23 @@ subplot(3,1,2)
 hold on
 
 plot(time,vel(:,2),'LineWidth', 1.5);
-plot(time_obs,vel_obs(:,2),'LineWidth', 1.5);
-legend({'$v$', '$v_{d}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
+plot(time_obs_nu,vel_obs(:,2),'LineWidth', 1.5);
+legend({'$v$', '$\hat{v}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
 xlabel('Time [s]','interpreter','latex','fontsize',13);
 ylabel('Angular velocity','interpreter','latex','fontsize',13)
 
 subplot(3,1,3)
 hold on
 plot(time,vel(:,3),'LineWidth', 1.5);
-plot(time_obs,vel_obs(:,3),'LineWidth', 1.5);
-legend({'$r$', '$r_{d}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
+plot(time_obs_nu,vel_obs(:,3),'LineWidth', 1.5);
+legend({'$r$', '$\hat{r}$'},'Interpreter','latex','Location','best','NumColumns',1,'fontsize',13)
 xlabel('Time [s]','interpreter','latex','fontsize',13);
 ylabel('Angular velocity','interpreter','latex','fontsize',13)
 
 
 
-figure(5)
-clf(5)
+% figure(5)
+% clf(5)
 % plot(time_u, inputData(1:3,:))
 
 figure(6)

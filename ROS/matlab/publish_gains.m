@@ -13,5 +13,6 @@ rosinit('192.168.1.2')
 obs_msg.Data =[1.0 2.0 3.0]';
 ctrl_msg.Data = [2.0 4.0 13.37 420.0]';
 
+
 send(pub_ctrl, ctrl_msg);
 send(pub_obs,obs_msg);
