@@ -1,0 +1,10 @@
+<library path="lib/libcse_actuator_driver_nodelet">
+    <class name="cse_actuator_driver/cse_actuator_driver_nodelet"
+           type="cse_actuator_driver::CSEActuatorDriverNodelet"
+           base_class_type="nodelet::Nodelet">
+        <description>
+            CyberShip Enterprise actuator driver nodelet.
+        </description>
+    </class>
+
+</library>
